@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
   <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <!-- Base Leaflet -->
   <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
   <!-- ESRI Leaflet -->
@@ -14,6 +15,9 @@
    crossorigin=""></script>
    <!-- Leaflet Draw -->
    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+   <!-- JQuery -->
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+   <script src="js/request.js"></script>
 </head>
 
 <body>
@@ -21,5 +25,35 @@
   </div>
   <script src="js/map.js"></script>
 </body>
-
+<h3>Filters</h3>
+<form>
+<div class="form-row">
+  <div class="form-group">
+    <label for="network">Network(s)</label>
+    <input type="text" class="form-control" id="network" placeholder="SEED or data center code">
+  <div>
+  <div class="form-group">
+    <label for="station">Station(s)</label>
+    <input type="text" class="form-control" id="station" placeholder="SEED or data center code">
+  <div>
+  <div class="form-group">
+    <label for="location">Location(s)</label>
+    <input type="text" class="form-control" id="location" placeholder="SEED or data center code">
+  <div>
+  <div class="form-group">
+    <label for="channel">Channel(s)</label>
+    <input type="text" class="form-control" id="channel" placeholder="SEED or data center code">
+  <div>
+  <div class="form-group">
+    <label for="start-date">Start Date</label>
+    <input type="date" class="form-control" id="start-date">
+  <div>
+  <div class="form-group">
+    <label for="start-date">End Date</label>
+    <input type="date" class="form-control" id="end-date">
+  <div>
+</div>
+</form>
+<br>
+<input class="btn btn-primary" type="button" value="Query" id="update">
 </html>
