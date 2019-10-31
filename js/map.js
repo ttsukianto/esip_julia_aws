@@ -8,3 +8,5 @@ var drawControl = new L.Control.Draw({
     }
 });
 map.addControl(drawControl);
+var markersLayer = new L.LayerGroup();
+markersLayer.addTo(map);
