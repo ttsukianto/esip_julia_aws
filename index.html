@@ -21,39 +21,81 @@
 </head>
 
 <body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="https://github.com/ttsukianto/esip_julia_aws">ESIP XCor App</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link active" href="#">Map<span class="sr-only">(current)</span></a>
+      <a class="nav-item nav-link" href="#">XCor</a>
+    </div>
+  </div>
+</nav>
+<div id="appContainer">
   <div id="map">
   </div>
   <script src="js/map.js"></script>
-</body>
-<h3>Filters</h3>
-<form>
-<div class="form-row">
-  <div class="form-group">
-    <label for="network">Network(s)</label>
-    <input type="text" class="form-control" id="network" placeholder="SEED or data center code">
-  <div>
-  <div class="form-group">
-    <label for="station">Station(s)</label>
-    <input type="text" class="form-control" id="station" placeholder="SEED or data center code">
-  <div>
-  <div class="form-group">
-    <label for="location">Location(s)</label>
-    <input type="text" class="form-control" id="location" placeholder="SEED or data center code">
-  <div>
-  <div class="form-group">
-    <label for="channel">Channel(s)</label>
-    <input type="text" class="form-control" id="channel" placeholder="SEED or data center code">
-  <div>
-  <div class="form-group">
-    <label for="start-date">Start Date</label>
-    <input type="date" class="form-control" id="start-date">
-  <div>
-  <div class="form-group">
-    <label for="start-date">End Date</label>
-    <input type="date" class="form-control" id="end-date">
-  <div>
+  <div id="tableOptions">
+    <input class="btn btn-success" type="button" value="Select All" id="selectAll">
+    <input class="btn btn-danger" type="button" value="Deselect All" id="deselectAll">
+  </div>
+  <div id="tableContainer">
+    <table id="displayedStations" class="table table-striped">
+      <thead class="sticky-top">
+        <tr>
+          <th scope="col">Selected</th>
+          <th scope="col">Network</th>
+          <th scope="col">Station</th>
+          <th scope="col">Latitude</th>
+          <th scope="col">Longitude</th>
+          <th scope="col">Start Date</th>
+          <th scope="col">End Date</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+<div id="filters">
+  <h3>Filters</h3>
+  <form>
+  <div class="form-row">
+    <div class="form-group">
+      <label for="network">Network(s)</label>
+      <input type="text" class="form-control" id="network" placeholder="SEED or data center code">
+    <div>
+    <div class="form-group">
+      <label for="station">Station(s)</label>
+      <input type="text" class="form-control" id="station" placeholder="SEED or data center code">
+    <div>
+    <div class="form-group">
+      <label for="location">Location(s)</label>
+      <input type="text" class="form-control" id="location" placeholder="SEED or data center code">
+    <div>
+    <div class="form-group">
+      <label for="channel">Channel(s)</label>
+      <input type="text" class="form-control" id="channel" placeholder="SEED or data center code">
+    <div>
+    <div class="form-group">
+      <label for="start-date">Start Date</label>
+      <input type="date" class="form-control" id="start-date">
+    <div>
+    <div class="form-group">
+      <label for="start-date">End Date</label>
+      <input type="date" class="form-control" id="end-date">
+    <div>
+  </div>
+  </form>
+  <br>
+  <input class="btn btn-secondary" type="button" value="Query" id="update">
+  <input class="btn btn-primary" type="button" value="Save Selected" id="save">
+  <br>
+  <br>
+  <p><span id="numQueried">0</span> stations found.</p>
+  <p><span id="numSaved">0</span> stations saved.</p>
 </div>
-</form>
-<br>
-<input class="btn btn-primary" type="button" value="Query" id="update">
+</div>
+</body>
 </html>

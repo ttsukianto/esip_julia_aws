@@ -1,31 +1,99 @@
+var queriedStations = [];
+var savedStations = [];
 
+function clearAll() {
+   $("#displayedStations tbody tr").remove();
+   markersLayer.clearLayers();
+   queriedStations = [];
+}
 
 function parseXml(xml){
-  markersLayer.clearLayers();
+  // First, clear all previous query markers from map
+  clearAll();
   $(xml).find("Network").each(function(){
     var network = $(this).attr("code");
     $(this).find("Station").each(function(){
+      var currentStation = [];
+      currentStation.push(network);
+      // Get attributes from XML file
+      var station = $(this).attr("code");
+      currentStation.push(station);
+      var startDate = $(this).attr("startDate");
+      currentStation.push(startDate);
+      var endDate = $(this).attr("endDate");
+      currentStation.push(endDate);
+      var latitude = $(this).find("Latitude").text();
+      currentStation.push(latitude);
+      var longitude = $(this).find("Longitude").text();
+      currentStation.push(longitude);
+      var elevation = $(this).find("Elevation").text();
+      currentStation.push(elevation);
+      // Create map popup
       var popupText = "<dl><dt>Network</dt>"
              + "<dd>" + network + "</dd>"
              + "<dt>Station</dt>"
-             + "<dd>" + $(this).attr("code") + "</dd>"
+             + "<dd>" + station + "</dd>"
              + "<dt>Start Date</dt>"
-             + "<dd>" + $(this).attr("startDate") + "</dd>"
+             + "<dd>" + startDate + "</dd>"
              + "<dt>End Date</dt>"
-             + "<dd>" + $(this).attr("endDate") + "</dd>"
+             + "<dd>" + endDate + "</dd>"
              + "<dt>Latitude</dt>"
-             + "<dd>" + $(this).find("Latitude").text() + "</dd>"
+             + "<dd>" + latitude + "</dd>"
              + "<dt>Longitude</dt>"
-             + "<dd>" + $(this).find("Longitude").text() + "</dd>"
+             + "<dd>" + longitude + "</dd>"
              + "<dt>Elevation</dt>"
-             + "<dd>" + $(this).find("Elevation").text() + "</dd>"
+             + "<dd>" + elevation + "</dd>"
              + "</dl>";
+      // Add popup to map
       var stationMarker = L.marker([$(this).find("Latitude").text(),$(this).find("Longitude").text()]).addTo(map);
       stationMarker.bindPopup(popupText);
       markersLayer.addLayer(stationMarker);
+      // Add current station to displayed table
+      var currentRow = document.querySelector("#displayedStations tbody").insertRow(-1);
+      var checkbox = document.createElement("INPUT");
+      checkbox.setAttribute("type", "checkbox");
+      currentRow.insertCell(0).append(checkbox);
+      currentRow.insertCell(1).innerHTML = network;
+      currentRow.insertCell(2).innerHTML = station;
+      currentRow.insertCell(3).innerHTML = latitude;
+      currentRow.insertCell(4).innerHTML = longitude;
+      currentRow.insertCell(5).innerHTML = startDate;
+      currentRow.insertCell(6).innerHTML = endDate;
+      document.querySelector("#displayedStations tbody").appendChild(currentRow);
+      queriedStations.push(currentStation);
     });
   });
+  $("#numQueried").html(queriedStations.length);
 }
+
+$(document).on("click", "#selectAll", function(){
+  var inputs = document.getElementsByTagName("input");
+   for(var i = 0; i < inputs.length; i++) {
+       if(inputs[i].type == "checkbox") {
+           if(!inputs[i].checked) {
+             inputs[i].checked = true;
+           }
+       }
+   }
+});
+
+$(document).on("click", "#deselectAll", function(){
+  var inputs = document.getElementsByTagName("input");
+   for(var i = 0; i < inputs.length; i++) {
+       if(inputs[i].type == "checkbox") {
+           if(inputs[i].checked) {
+             inputs[i].checked = false;
+           }
+       }
+   }
+});
+
+$(document).on("click", "#save", function(){
+  var selectedIndices = $.map($("input:checked").closest("tr"), function(tr) { return $(tr).index(); });
+  savedStations = selectedIndices.map(i => queriedStations[i]);
+  $("#numSaved").html(savedStations.length);
+});
+
 
 $(document).on("click", "#update", function(){
   var url = "http://service.iris.edu/fdsnws/station/1/query?";
