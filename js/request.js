@@ -4,6 +4,7 @@ var savedStations = [];
 function clearAll() {
    $("#displayedStations tbody tr").remove();
    markersLayer.clearLayers();
+   rectangleLayer.clearLayers();
    queriedStations = [];
 }
 
@@ -96,68 +97,31 @@ $(document).on("click", "#save", function(){
 
 
 $(document).on("click", "#update", function(){
-  var url = "http://service.iris.edu/fdsnws/station/1/query?";
-  var requestedParams = 0;
+  var url = "http://service.iris.edu/fdsnws/station/1/query?minlat=" + minLat + "&maxlat=" + maxLat + "&minlon=" + minLong + "&maxlon=" + maxLong;
 
   if(document.getElementById("network").value) { // Networks
     var network = document.getElementById("network").value;
-    if(requestedParams != 0) {
-      url = url + "&network=" + network;
-    }
-    else {
-      url = url + "network=" + network;
-    }
-    requestedParams++;
+    url = url + "&network=" + network;
   }
   if(document.getElementById("station").value) { // Stations
     var station = document.getElementById("station").value;
-    if(requestedParams != 0) {
-      url = url + "&station=" + station;
-    }
-    else {
-      url = url + "station=" + station;
-    }
-    requestedParams++;
+    url = url + "&station=" + station;
   }
   if(document.getElementById("location").value) { // Locations
     var location = document.getElementById("location").value;
-    if(requestedParams != 0) {
-      url = url + "&location=" + location;
-    }
-    else {
-      url = url + "location=" + location;
-    }
-    requestedParams++;
+    url = url + "&location=" + location;
   }
   if(document.getElementById("channel").value) { // Channels
     var channel = document.getElementById("channel").value;
-    if(requestedParams != 0) {
-      url = url + "&channel=" + channel;
-    }
-    else {
-      url = url + "channel=" + channel;
-    }
-    requestedParams++;
+    url = url + "&channel=" + channel;
   }
   if(document.getElementById("start-date").value) { // Start Date
     var start = document.getElementById("start-date").value;
-    if(requestedParams != 0) {
-      url = url + "&starttime=" + start;
-    }
-    else {
-      url = url + "starttime=" + start;
-    }
-    requestedParams++;
+    url = url + "&starttime=" + start;
   }
   if(document.getElementById("end-date").value) { // End Date
     var end = document.getElementById("end-date").value;
-    if(requestedParams != 0) {
-      url = url + "&endtime=" + end;
-    }
-    else {
-      url = url + "endtime=" + end;
-    }
-    requestedParams++;
+    url = url + "&endtime=" + end;
   }
 
   console.log(url) // Verifying if the URL is correct
