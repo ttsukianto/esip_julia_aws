@@ -1,5 +1,8 @@
 var queriedStations = [];
 var savedStations = [];
+var xcorMin = 0; // TODO: replace with default values
+var xcorMax = 0;
+var xcorLength = 0;
 
 function clearAll() {
    $("#displayedStations tbody tr").remove();
@@ -93,6 +96,21 @@ $(document).on("click", "#save", function(){
   var selectedIndices = $.map($("input:checked").closest("tr"), function(tr) { return $(tr).index(); });
   savedStations = selectedIndices.map(i => queriedStations[i]);
   $("#numSaved").html(savedStations.length);
+});
+
+$(document).on("click", "#launch", function(){
+  if(document.getElementById("xcorMin").value) {
+    xcorMin = document.getElementById("xcorMin").value;
+    console.log(xcorMin);
+  }
+  if(document.getElementById("xcorMax").value) {
+    xcorMax = document.getElementById("xcorMax").value;
+    console.log(xcorMax);
+  }
+  if(document.getElementById("xcorLength").value) {
+    xcorLength = document.getElementById("xcorLength").value;
+    console.log(xcorLength);
+  }
 });
 
 
