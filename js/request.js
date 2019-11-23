@@ -1,8 +1,11 @@
 var queriedStations = [];
 var savedStations = [];
-var xcorMin = 0; // TODO: replace with default values
-var xcorMax = 0;
-var xcorLength = 0;
+var fs = 10.0;
+var freqmin = 0.1;
+var freqmax = 0.2;
+var ccstep = 450;
+var cclen = 1800;
+var maxlag = 60.0;
 
 function clearAll() {
    $("#displayedStations tbody tr").remove();
@@ -27,11 +30,11 @@ function parseXml(xml){
       var endDate = $(this).attr("endDate");
       currentStation.push(endDate);
       var latitude = $(this).find("Latitude").text();
-      currentStation.push(latitude);
+      currentStation.push(parseFloat(latitude));
       var longitude = $(this).find("Longitude").text();
-      currentStation.push(longitude);
+      currentStation.push(parseFloat(longitude));
       var elevation = $(this).find("Elevation").text();
-      currentStation.push(elevation);
+      currentStation.push(parseFloat(elevation));
       // Create map popup
       var popupText = "<dl><dt>Network</dt>"
              + "<dd>" + network + "</dd>"
@@ -68,6 +71,7 @@ function parseXml(xml){
     });
   });
   $("#numQueried").html(queriedStations.length);
+  map.fitBounds(markersLayer.getBounds());
 }
 
 $(document).on("click", "#selectAll", function(){
@@ -98,18 +102,29 @@ $(document).on("click", "#save", function(){
   $("#numSaved").html(savedStations.length);
 });
 
+$(document).on("click", "#clear", function(){
+  savedStations = [];
+  $("#numSaved").html(0);
+});
+
 $(document).on("click", "#launch", function(){
-  if(document.getElementById("xcorMin").value) {
-    xcorMin = document.getElementById("xcorMin").value;
-    console.log(xcorMin);
+  if(document.getElementById("fs").value) {
+    fs = document.getElementById("fs").value;
   }
-  if(document.getElementById("xcorMax").value) {
-    xcorMax = document.getElementById("xcorMax").value;
-    console.log(xcorMax);
+  if(document.getElementById("freqmin").value) {
+    freqmin = document.getElementById("freqmin").value;
   }
-  if(document.getElementById("xcorLength").value) {
-    xcorLength = document.getElementById("xcorLength").value;
-    console.log(xcorLength);
+  if(document.getElementById("freqmax").value) {
+    freqmax = document.getElementById("freqmax").value;
+  }
+  if(document.getElementById("ccstep").value) {
+    ccstep = document.getElementById("ccstep").value;
+  }
+  if(document.getElementById("cclen").value) {
+    cclen = document.getElementById("cclen").value;
+  }
+  if(document.getElementById("maxlag").value) {
+    maxlag = document.getElementById("maxlag").value;
   }
 });
 

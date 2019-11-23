@@ -1,4 +1,4 @@
-var map = L.map('map').setView([37.75, -122.23], 10);
+var map = L.map('map').setView([39.8283, -98.5795], 7);
 L.esri.basemapLayer('Topographic').addTo(map);
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
@@ -12,7 +12,7 @@ var drawControl = new L.Control.Draw({
   edit: false
 });
 map.addControl(drawControl);
-var markersLayer = new L.LayerGroup();
+var markersLayer = new L.FeatureGroup();
 markersLayer.addTo(map);
 
 var maxLat = 90;
