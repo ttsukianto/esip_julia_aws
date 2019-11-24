@@ -1,5 +1,6 @@
-var queriedStations = [];
-var savedStations = [];
+var queriedChannels = [];
+var savedChannels = [];
+var savedCSV = "";
 var fs = 10.0;
 var freqmin = 0.1;
 var freqmax = 0.2;
@@ -11,7 +12,7 @@ function clearAll() {
    $("#displayedStations tbody tr").remove();
    markersLayer.clearLayers();
    rectangleLayer.clearLayers();
-   queriedStations = [];
+   queriedChannels = [];
 }
 
 function parseXml(xml){
@@ -20,30 +21,22 @@ function parseXml(xml){
   $(xml).find("Network").each(function(){
     var network = $(this).attr("code");
     $(this).find("Station").each(function(){
-      var currentStation = [];
-      currentStation.push(network);
       // Get attributes from XML file
       var station = $(this).attr("code");
-      currentStation.push(station);
-      var startDate = $(this).attr("startDate");
-      currentStation.push(startDate);
-      var endDate = $(this).attr("endDate");
-      currentStation.push(endDate);
-      var latitude = $(this).find("Latitude").text();
-      currentStation.push(parseFloat(latitude));
-      var longitude = $(this).find("Longitude").text();
-      currentStation.push(parseFloat(longitude));
-      var elevation = $(this).find("Elevation").text();
-      currentStation.push(parseFloat(elevation));
+      var stationStartDate = $(this).attr("startDate");
+      var stationEndDate = $(this).attr("endDate");
+      var latitude = $(this).find("> Latitude").text();
+      var longitude = $(this).find("> Longitude").text();
+      var elevation = $(this).find("> Elevation").text();
       // Create map popup
       var popupText = "<dl><dt>Network</dt>"
              + "<dd>" + network + "</dd>"
              + "<dt>Station</dt>"
              + "<dd>" + station + "</dd>"
              + "<dt>Start Date</dt>"
-             + "<dd>" + startDate + "</dd>"
+             + "<dd>" + stationStartDate + "</dd>"
              + "<dt>End Date</dt>"
-             + "<dd>" + endDate + "</dd>"
+             + "<dd>" + stationEndDate + "</dd>"
              + "<dt>Latitude</dt>"
              + "<dd>" + latitude + "</dd>"
              + "<dt>Longitude</dt>"
@@ -52,25 +45,38 @@ function parseXml(xml){
              + "<dd>" + elevation + "</dd>"
              + "</dl>";
       // Add popup to map
-      var stationMarker = L.marker([$(this).find("Latitude").text(),$(this).find("Longitude").text()]).addTo(map);
+      var stationMarker = L.marker([latitude, longitude]).addTo(map);
       stationMarker.bindPopup(popupText);
       markersLayer.addLayer(stationMarker);
-      // Add current station to displayed table
-      var currentRow = document.querySelector("#displayedStations tbody").insertRow(-1);
-      var checkbox = document.createElement("INPUT");
-      checkbox.setAttribute("type", "checkbox");
-      currentRow.insertCell(0).append(checkbox);
-      currentRow.insertCell(1).innerHTML = network;
-      currentRow.insertCell(2).innerHTML = station;
-      currentRow.insertCell(3).innerHTML = latitude;
-      currentRow.insertCell(4).innerHTML = longitude;
-      currentRow.insertCell(5).innerHTML = startDate;
-      currentRow.insertCell(6).innerHTML = endDate;
-      document.querySelector("#displayedStations tbody").appendChild(currentRow);
-      queriedStations.push(currentStation);
-    });
-  });
-  $("#numQueried").html(queriedStations.length);
+      // Add current station channel to displayed table
+      $(this).find("Channel").each(function() {
+        var currentChannel = [];
+        currentChannel.push(network);
+        currentChannel.push(station);
+        var location = $(this).attr("locationCode");
+        currentChannel.push(location);
+        var channel = $(this).attr("code");
+        currentChannel.push(channel);
+        var channelStartDate = $(this).attr("startDate");
+        currentChannel.push(channelStartDate);
+        var channelEndDate = $(this).attr("endDate");
+        currentChannel.push(channelEndDate);
+        var currentRow = document.querySelector("#displayedStations tbody").insertRow(-1);
+        var checkbox = document.createElement("INPUT");
+        checkbox.setAttribute("type", "checkbox");
+        currentRow.insertCell(0).append(checkbox);
+        currentRow.insertCell(1).innerHTML = network;
+        currentRow.insertCell(2).innerHTML = station;
+        currentRow.insertCell(3).innerHTML = location;
+        currentRow.insertCell(4).innerHTML = channel;
+        currentRow.insertCell(5).innerHTML = channelStartDate;
+        currentRow.insertCell(6).innerHTML = channelEndDate;
+        document.querySelector("#displayedStations tbody").appendChild(currentRow);
+        queriedChannels.push(currentChannel);
+      }); // End per-channel loop
+    }); // End per-station loop
+  }); // End per-network loop
+  $("#numQueried").html(queriedChannels.length);
   map.fitBounds(markersLayer.getBounds());
 }
 
@@ -98,12 +104,13 @@ $(document).on("click", "#deselectAll", function(){
 
 $(document).on("click", "#save", function(){
   var selectedIndices = $.map($("input:checked").closest("tr"), function(tr) { return $(tr).index(); });
-  savedStations = selectedIndices.map(i => queriedStations[i]);
-  $("#numSaved").html(savedStations.length);
+  savedChannels = selectedIndices.map(i => queriedChannels[i]);
+  $("#numSaved").html(savedChannels.length);
+  savedCSV = encodeURI("data:text/csv;charset=utf-8," + savedChannels.map(e => e.join(",")).join("\n"));
 });
 
 $(document).on("click", "#clear", function(){
-  savedStations = [];
+  savedChannels = [];
   $("#numSaved").html(0);
 });
 
@@ -130,7 +137,7 @@ $(document).on("click", "#launch", function(){
 
 
 $(document).on("click", "#update", function(){
-  var url = "http://service.iris.edu/fdsnws/station/1/query?minlat=" + minLat + "&maxlat=" + maxLat + "&minlon=" + minLong + "&maxlon=" + maxLong;
+  var url = "http://service.iris.edu/fdsnws/station/1/query?level=channel&minlat=" + minLat + "&maxlat=" + maxLat + "&minlon=" + minLong + "&maxlon=" + maxLong;
 
   if(document.getElementById("network").value) { // Networks
     var network = document.getElementById("network").value;
