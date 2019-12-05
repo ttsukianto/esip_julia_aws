@@ -114,6 +114,10 @@ $(document).on("click", "#clear", function(){
   $("#numSaved").html(0);
 });
 
+$(document).on("click", "#download", function(){
+  window.open(savedCSV);
+});
+
 $(document).on("click", "#launch", function(){
   if(document.getElementById("fs").value) {
     fs = document.getElementById("fs").value;
