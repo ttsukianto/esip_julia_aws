@@ -1,5 +1,6 @@
 var queriedChannels = [];
 var savedChannels = [];
+var params = [];
 var savedCSV = "";
 var fs = 10.0;
 var freqmin = 0.1;
@@ -106,6 +107,7 @@ $(document).on("click", "#save", function(){
   var selectedIndices = $.map($("input:checked").closest("tr"), function(tr) { return $(tr).index(); });
   savedChannels = selectedIndices.map(i => queriedChannels[i]);
   $("#numSaved").html(savedChannels.length);
+  savedChannels.unshift(["Network", "Station", "Location", "Channel", "StartDate", "EndDate"]);
   savedCSV = encodeURI("data:text/csv;charset=utf-8," + savedChannels.map(e => e.join(",")).join("\n"));
 });
 
@@ -119,6 +121,7 @@ $(document).on("click", "#download", function(){
 });
 
 $(document).on("click", "#launch", function(){
+  params = ["FS", "FreqMin", "FreqMax", "CCStep", "CCLen", "MaxLag"];
   if(document.getElementById("fs").value) {
     fs = document.getElementById("fs").value;
   }
@@ -137,6 +140,7 @@ $(document).on("click", "#launch", function(){
   if(document.getElementById("maxlag").value) {
     maxlag = document.getElementById("maxlag").value;
   }
+  params.push([fs, freqmin, freqmax, ccstep, cclen, maxlag]);
 });
 
 
