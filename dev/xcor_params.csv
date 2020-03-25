@@ -1,0 +1,2 @@
+fs,freqmin,freqmax,cc_step,cc_len,maxlag
+10,0.1,0.2,450,1800,60

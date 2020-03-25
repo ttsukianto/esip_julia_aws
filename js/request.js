@@ -116,12 +116,16 @@ $(document).on("click", "#clear", function(){
   $("#numSaved").html(0);
 });
 
-$(document).on("click", "#download", function(){
-  window.open(savedCSV);
+$(document).on("click", "#download_stations", function(){
+  var link = document.createElement("a");
+  link.setAttribute("href", savedCSV);
+  link.setAttribute("download", "stations.csv");
+  document.body.appendChild(link);
+  link.click();
 });
 
 $(document).on("click", "#launch", function(){
-  params = ["FS", "FreqMin", "FreqMax", "CCStep", "CCLen", "MaxLag"];
+  params = [];
   if(document.getElementById("fs").value) {
     fs = document.getElementById("fs").value;
   }
@@ -141,6 +145,16 @@ $(document).on("click", "#launch", function(){
     maxlag = document.getElementById("maxlag").value;
   }
   params.push([fs, freqmin, freqmax, ccstep, cclen, maxlag]);
+  params.unshift(["fs", "freqmin", "freqmax", "cc_step", "cc_len", "maxlag"]);
+  paramsCSV = encodeURI("data:text/csv;charset=utf-8," + params.map(e => e.join(",")).join("\n"));
+});
+
+$(document).on("click", "#download_params", function(){
+  var link = document.createElement("a");
+  link.setAttribute("href", paramsCSV);
+  link.setAttribute("download", "xcor_params.csv");
+  document.body.appendChild(link);
+  link.click();
 });
 
 
