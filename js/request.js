@@ -108,7 +108,8 @@ $(document).on("click", "#save", function(){
   savedChannels = selectedIndices.map(i => queriedChannels[i]);
   $("#numSaved").html(savedChannels.length);
   savedChannels.unshift(["Network", "Station", "Location", "Channel", "StartDate", "EndDate"]);
-  savedCSV = encodeURI("data:text/csv;charset=utf-8," + savedChannels.map(e => e.join(",")).join("\n"));
+  channelsText = savedChannels.map(e => e.join(",")).join("\n");
+  savedCSV = encodeURI("data:text/csv;charset=utf-8," + channelsText);
 });
 
 $(document).on("click", "#clear", function(){
@@ -144,9 +145,37 @@ $(document).on("click", "#launch", function(){
   if(document.getElementById("maxlag").value) {
     maxlag = document.getElementById("maxlag").value;
   }
+  id = Math.round(100000*Math.random());
   params.push([fs, freqmin, freqmax, ccstep, cclen, maxlag]);
   params.unshift(["fs", "freqmin", "freqmax", "cc_step", "cc_len", "maxlag"]);
-  paramsCSV = encodeURI("data:text/csv;charset=utf-8," + params.map(e => e.join(",")).join("\n"));
+  paramsText = params.map(e => e.join(",")).join("\n");
+  paramsCSV = encodeURI("data:text/csv;charset=utf-8," + paramsText);
+  AWS.config.credentials.refresh(function(){
+    s3.upload({
+        Key: id + "/params.csv",
+        Body: paramsText,
+        },
+        function(err, data) {
+          if(err) {
+            console.log("Error", err.message);
+          }
+        }).on('httpUploadProgress', function (progress) {
+          var uploaded = parseInt((progress.loaded * 100) / progress.total);
+          $("progress").attr('value', uploaded);
+        });
+    s3.upload({
+        Key: id + "/stations.csv",
+        Body: channelsText,
+        },
+        function(err, data) {
+          if(err) {
+            console.log("Error", err.message);
+          }
+        }).on('httpUploadProgress', function (progress) {
+          var uploaded = parseInt((progress.loaded * 100) / progress.total);
+          $("progress").attr('value', uploaded);
+        });
+  });
 });
 
 $(document).on("click", "#download_params", function(){
@@ -185,8 +214,6 @@ $(document).on("click", "#update", function(){
     var end = document.getElementById("end-date").value;
     url = url + "&endtime=" + end;
   }
-
-  console.log(url) // Verifying if the URL is correct
 
   $.ajax({ // Query IRIS
     type: "GET",
