@@ -152,7 +152,7 @@ $(document).on("click", "#launch", function(){
   paramsCSV = encodeURI("data:text/csv;charset=utf-8," + paramsText);
   AWS.config.credentials.refresh(function(){
     s3.upload({
-        Key: id + "/params.csv",
+        Key: "incoming/" + id + "/params.csv",
         Body: paramsText,
         },
         function(err, data) {
@@ -164,7 +164,7 @@ $(document).on("click", "#launch", function(){
           $("progress").attr('value', uploaded);
         });
     s3.upload({
-        Key: id + "/stations.csv",
+        Key: "incoming/" + id + "/stations.csv",
         Body: channelsText,
         },
         function(err, data) {
