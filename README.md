@@ -42,7 +42,7 @@ a) To download data from IRIS and do the instrument deconvolution, we use [SeisI
 
 b) To do the actual seismic noise preprocessing and crosscorrelation, we use [SeisNoise.jl](https://github.com/tclements/SeisNoise.jl) from [Tim Clements](https://scholar.harvard.edu/thclements) and [Marine Denolle](https://quake.fas.harvard.edu/people/marine-denolle). The XCor Filter parameters are used by this code. 
 
-c) We have written some Julia code that uses these two packages. We then distribute the correlations over an EC2 AWS instance and return the completed the correlations to the user.
+c) We have written some Julia code [SeisNoiseAWS.jl](https://github.com/dylanmikesell/SeisNoiseAWS.jl/tree/master/docs) that uses these two packages. We then distribute the correlations over an AWS EC2 instance and return the completed the correlations to the user.
 
 #### XCor Filter parameters
 
@@ -89,3 +89,8 @@ The crosscorrelations between all possible stations pairs is performed. Rather t
 
 Once a correlation for a single station pair, for a given day is complete the correlations are written to JLD2 files. The docker is then closed and the folder containing all of the JLD2 files is synced back to S3 to the folder _processed_.
 
+### 3) Stacking
+
+Eventually we will have a third tab that allows the user to stack the resulting crosscorrelations in the JLD2 files using the stacking capabilities in SeisNoise.jl. This includes linear, phase-weighted, and robust stacking. These are all methods that have been published in the seismic noise correlation literature.
+
+In addition, the code will make images that can also be downloaded from the S3 bucket that show crosscorrelograms and virutal shot records.
