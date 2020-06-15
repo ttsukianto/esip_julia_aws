@@ -36,7 +36,7 @@ The user can also download a CSV file (_stations.csv_) that contains the metadat
 
 Step 2 requires the user to move to the __XCor__ tab. In this step, the user needs to choose the processing parameters that going into the noise crosscorrelations. Prior to that discussion though, we introduce the underlying [Julia](https://julialang.org/) packages that are used under the hood in this AWS app.
 
-    a) To download data from IRIS and do the instrument deconvolution, we use [SeisIO.jl](https://github.com/jpjones76/SeisIO.jl). For anyone looking to start with Julia-based seismic data processing, this is the package we recommend. See the [SeisIO docs](https://seisio.readthedocs.io/en/latest/). There is a also a recent publication about this code, which contains comparisons to other seismic data processing tools (e.g. Obspy) that highlights the speed of SeisIO.jl.
+a) To download data from IRIS and do the instrument deconvolution, we use [SeisIO.jl](https://github.com/jpjones76/SeisIO.jl). For anyone looking to start with Julia-based seismic data processing, this is the package we recommend. See the [SeisIO docs](https://seisio.readthedocs.io/en/latest/). There is a also a recent publication about this code, which contains comparisons to other seismic data processing tools (e.g. Obspy) that highlights the speed of SeisIO.jl.
 
 [Joshua P. Jones, Kurama Okubo, Tim Clements, Marine A. Denolle; SeisIO: A Fast, Efficient Geophysical Data Architecture for the Julia Language. Seismological Research Letters doi: https://doi.org/10.1785/0220190295](https://pubs.geoscienceworld.org/ssa/srl/article/doi/10.1785/0220190295/583741/SeisIO-A-Fast-Efficient-Geophysical-Data)
 
