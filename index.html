@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+  <script src="https://unpkg.com/esri-leaflet@2.3.1/dist/esri-leaflet.js"
+   integrity="sha512-Np+ry4Dro5siJ1HZ0hTwn2jsmu/hMNrYw1EIK9EjsEVbDge4AaQhjeTGRg2ispHg7ZgDMVrSDjNrzH/kAO9Law=="
+   crossorigin=""></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.24.min.js"></script>
+   <script src="js/s3_upload.js"></script>
+   <script src="js/request.js"></script>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="https://github.com/ttsukianto/esip_julia_aws">ESIP XCor App</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav">
+    </div>
+  </div>
+</nav>
+<div class="nav nav-tabs">
+  <a class="nav-item nav-link active" data-toggle="tab" href="#appContainer">Map</a>
+  <a class="nav-item nav-link" data-toggle="tab" href="#xCorContainer">XCor</a>
+  <a class="nav-item nav-link" data-toggle="tab" href="#stackContainer">Stacking</a>
+</div>
+<div class="tab-content">
+<!-- Start of map tab -->
+<div id="appContainer" class="tab-pane active">
+  <div id="map">
+  </div>
+  <script src="js/map.js"></script>
+  <div id="tableOptions">
+    <input class="btn btn-success" type="button" value="Select All" id="selectAll">
+    <input class="btn btn-danger" type="button" value="Deselect All" id="deselectAll">
+  </div>
+  <div id="tableContainer">
+    <table id="displayedStations" class="table table-striped">
+      <thead class="sticky-top">
+        <tr>
+          <th scope="col">Selected</th>
+          <th scope="col">Network</th>
+          <th scope="col">Station</th>
+          <th scope="col">Location</th>
+          <th scope="col">Channel</th>
+          <th scope="col">Start Date</th>
+          <th scope="col">End Date</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+<div id="filters">
+  <h3>Station Filters</h3>
+  <p>Use the rectangle tool for geographic constraints.</p>
+  <form>
+  <div class="form-row">
+    <div class="form-group">
+      <label for="network">Network(s)</label>
+      <input type="text" class="form-control" id="network" placeholder="SEED or data center code">
+    </div>
+    <div class="form-group">
+      <label for="station">Station(s)</label>
+      <input type="text" class="form-control" id="station" placeholder="SEED or data center code">
+    </div>
+    <div class="form-group">
+      <label for="location">Location(s)</label>
+      <input type="text" class="form-control" id="location" placeholder="SEED or data center code">
+    </div>
+    <div class="form-group">
+      <label for="channel">Channel(s)</label>
+      <input type="text" class="form-control" id="channel" placeholder="SEED or data center code">
+    </div>
+    <div class="form-group">
+      <label for="start-date">Start Date</label>
+      <input type="date" class="form-control" id="start-date">
+    </div>
+    <div class="form-group">
+      <label for="start-date">End Date</label>
+      <input type="date" class="form-control" id="end-date">
+    </div>
+  </div>
+  </form>
+  <br>
+  <input class="btn btn-secondary" type="button" value="Query" id="update">
+  <br>
+  <br>
+  <input class="btn btn-primary" type="button" value="Save Selected" id="save">
+  <input class="btn btn-danger" type="button" value="Clear" id="clear">
+  <br>
+  <br>
+  <p><span id="numQueried">0</span> station channels found.</p>
+  <p><span id="numSaved">0</span> station channels saved.</p>
+  <input class="btn btn-primary" type="button" value="Download" id="download_stations">
+</div>
+</div>
+<!-- End of map tab -->
+<!-- Start of xcor tab -->
+<div id="xCorContainer" class="tab-pane">
+  <div id="xCorFilters">
+    <h3>XCor Filters</h3>
+    <form>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="fs">Resample Frequency (Hz)</label>
+        <input type="number" class="form-control" id="fs" placeholder="10.0">
+      </div>
+      </div>
+      <div class="form-row">
+      <div class="form-group">
+        <label for="freqmin">Minimum Frequency (Hz)</label>
+        <input type="number" class="form-control" id="freqmin" placeholder="0.1">
+      </div>
+      </div>
+      <div class="form-row">
+      <div class="form-group">
+        <label for="freqmax">Maximum Frequency (Hz)</label>
+        <input type="number" class="form-control" id="freqmax" placeholder="0.2">
+      </div>
+      </div>
+      <div class="form-row">
+      <div class="form-group">
+        <label for="ccstep">Correlation Step (sec)</label>
+        <input type="number" class="form-control" id="ccstep" placeholder="450">
+      </div>
+      </div>
+      <div class="form-row">
+      <div class="form-group">
+        <label for="cclen">Correlation Length (sec)</label>
+        <input type="number" class="form-control" id="cclen" placeholder="1800">
+      </div>
+      </div>
+      <div class="form-row">
+      <div class="form-group">
+        <label for="maxlag">Maximum Correlation Lag Time (sec)</label>
+        <input type="number" class="form-control" id="maxlag" placeholder="60.0">
+      </div>
+      </div>
+    </form>
+    <input class="btn btn-primary" type="button" value="Save and Launch" id="launch">
+    <br>
+    <br>
+    <input class="btn btn-secondary" type="button" value="Download" id="download_params">
+  </div>
+</div>
+<!-- End of xcor tab -->
+<!-- Start of stack tab -->
+<div id="stackContainer" class="tab-pane">
+</div>
+<!-- End of stack tab -->
+</div>
+</body>
+</html>
