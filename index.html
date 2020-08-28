@@ -69,27 +69,59 @@
   <form>
   <div class="form-row">
     <div class="form-group">
-      <label for="network">Network(s)</label>
+      <label for="network" data-toggle="tooltip"
+      title="Choose the network code or network codes of data that you would like to search for.
+      For example AV or TA. Use a comma to make a list of multiple network codes, e.g. AV, TA.
+      You can also use wildcards in your query, e.g. T*.
+      You can also leave this field empty.
+      NOTE: This is not suggested because it will return a huge list of potential stations and channels,
+      bogging down the query to a very slow response time."
+      data-placement="right">Network(s) &#9432;</label>
       <input type="text" class="form-control" id="network" placeholder="SEED or data center code">
     </div>
     <div class="form-group">
-      <label for="station">Station(s)</label>
+      <label for="station"
+      data-toggle="tooltip"
+      title="Choose the station code or station codes of data that you would like to search for.
+      For example CLES or CLES1. Use a comma to make a list of multiple station codes, e.g. CLES, CLES1.
+      You can also use wildcards in your query, e.g. CLE*.
+      You can also leave this field empty."
+      data-placement="right">Station(s) &#9432;</label>
       <input type="text" class="form-control" id="station" placeholder="SEED or data center code">
     </div>
     <div class="form-group">
-      <label for="location">Location(s)</label>
+      <label for="location"
+      data-toggle="tooltip"
+      title="Choose the location code or location codes of data that you would like to search for.
+      For example 00 or 01. Use a comma to make a list of multiple location codes, e.g. 00, 01.
+      You can also use wildcards in your query, e.g. *. NOTE: It is often easiest to leave this field empty and then select the locations you want from the list of stations that is returned.
+      This is because often times stations do not have location codes assigned."
+      data-placement="right">Location(s) &#9432;</label>
       <input type="text" class="form-control" id="location" placeholder="SEED or data center code">
     </div>
     <div class="form-group">
-      <label for="channel">Channel(s)</label>
+      <label for="channel"
+      data-toggle="tooltip"
+      title="Choose the channel or channels of data that you would like to search for.
+      For example BHZ or HHE. For a comprehensive overview of SEED channel naming conventions,
+      see this page at IRIS: https://ds.iris.edu/ds/nodes/dmc/data/formats/seed-channel-naming/.
+      Use a comma to make a list of multiple channel names, e.g. BHZ, HHE, HHZ.
+      You can also use wildcards in your query, e.g. BH*. You can also leave this field empty."
+      data-placement="right">Channel(s) &#9432;</label>
       <input type="text" class="form-control" id="channel" placeholder="SEED or data center code">
     </div>
     <div class="form-group">
-      <label for="start-date">Start Date</label>
+      <label for="start-date"
+      data-toggle="tooltip"
+      title="Choose the earliest time for which you would like to search for data."
+      data-placement="right">Start Date &#9432;</label>
       <input type="date" class="form-control" id="start-date">
     </div>
     <div class="form-group">
-      <label for="start-date">End Date</label>
+      <label for="end-date"
+      data-toggle="tooltip"
+      title="Choose the latest time for which you would like to search for data."
+      data-placement="right">End Date &#9432;</label>
       <input type="date" class="form-control" id="end-date">
     </div>
   </div>
@@ -112,40 +144,73 @@
 <div id="xCorContainer" class="tab-pane">
   <div id="xCorFilters">
     <h3>XCor Filters</h3>
+    <p>This page is used to set preprocessing and cross correlation parameters.
+    You can find more detailed information about the preprocessing parameters at
+    <a href="https://github.com/tclements/SeisNoise.jl/blob/master/docs/src/preprocessing.md">SeisNoise.jl.</a></p>
     <form>
     <div class="form-row">
       <div class="form-group">
-        <label for="fs">Resample Frequency (Hz)</label>
+        <label for="fs"
+        data-toggle="tooltip"
+        title="Choose the frequency at which you like to decimate or interpolate the raw data prior to crosscorrelation.
+        NOTE: Decimating the data can speed the processing time significantly.
+        Pay attention however that your 'Maximum Frequency' parameter respects
+        the Nyquist Frequency associated with the chosen Resample Frequency."
+        data-placement="right">Resample Frequency (Hz) &#9432;</label>
         <input type="number" class="form-control" id="fs" placeholder="10.0">
       </div>
       </div>
       <div class="form-row">
       <div class="form-group">
-        <label for="freqmin">Minimum Frequency (Hz)</label>
+        <label for="freqmin"
+        data-toggle="tooltip"
+        title="Low-frequency filter parameter for seismic data preprocessing before cross correlation."
+        data-placement="right">Minimum Frequency (Hz) &#9432;</label>
         <input type="number" class="form-control" id="freqmin" placeholder="0.1">
       </div>
       </div>
       <div class="form-row">
       <div class="form-group">
-        <label for="freqmax">Maximum Frequency (Hz)</label>
+        <label for="freqmax"
+        data-toggle="tooltip"
+        title="High-frequency filter parameter for seismic data preprocessing before cross correlation."
+        data-placement="right">Maximum Frequency (Hz) &#9432;</label>
         <input type="number" class="form-control" id="freqmax" placeholder="0.2">
       </div>
       </div>
       <div class="form-row">
       <div class="form-group">
-        <label for="ccstep">Correlation Step (sec)</label>
+        <label for="ccstep"
+        data-toggle="tooltip"
+        title="Set the step length in seconds for the moving window cross correlation. In other codes this often the 'percent overlap' parameter.
+        For example, if the correlation length was 600 seconds (10 minutes) and the correlation step was 300 seconds (5 minutes),
+        you would have 50% overlap in your sliding correlation window."
+        data-placement="right">Correlation Step (sec) &#9432;</label>
         <input type="number" class="form-control" id="ccstep" placeholder="450">
       </div>
       </div>
       <div class="form-row">
       <div class="form-group">
-        <label for="cclen">Correlation Length (sec)</label>
+        <label for="cclen"
+        data-toggle="tooltip"
+        title="Set the data window length for the cross correlation.
+        For example, if you set this value to 300 seconds (5 minutes),
+        you would cut your data into 300 second long windows prior to cross correlation."
+        data-placement="right">Correlation Length (sec) &#9432;</label>
         <input type="number" class="form-control" id="cclen" placeholder="1800">
       </div>
       </div>
       <div class="form-row">
       <div class="form-group">
-        <label for="maxlag">Maximum Correlation Lag Time (sec)</label>
+        <label for="maxlag"
+        data-toggle="tooltip"
+        title="Choose the maximum amount of time that you would like to save for your cross correlation waveform.
+        For example, if a correlation length of 300 seconds is chosen, the actual correlation length will be 600 seconds because there is a causal and acausal side to the correlation.
+        However, you may not want to save 600 seconds of data because your seismic arrival of interest should arrive at 5 seconds.
+        In that case you would want to save 20 or 30 seconds perhaps from each side of the correlation. Setting the Maximum Correlation Lag Time to 20 seconds,
+        would then result in a 40 second long cross correlation being saved, 20 seconds of the acausal signal and 20 seconds of the causal signal,
+        all written as a single seismic trace. NOTE: Saving smaller windows will speed post processing (e.g. stacking correlation windows)."
+        data-placement="right">Maximum Correlation Lag Time (sec) &#9432;</label>
         <input type="number" class="form-control" id="maxlag" placeholder="60.0">
       </div>
       </div>

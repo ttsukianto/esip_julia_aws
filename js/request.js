@@ -222,3 +222,8 @@ $(document).on("click", "#update", function(){
     success: parseXml
   });
 });
+
+// enable information box
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+});
