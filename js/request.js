@@ -125,8 +125,9 @@ $(document).on("click", "#download_stations", function(){
   link.click();
 });
 
+// XCor tab: If the "Save and Launch" button is clicked
 $(document).on("click", "#launch", function(){
-  params = [];
+  params = []; // generate an xcor parameter variable
   if(document.getElementById("fs").value) {
     fs = document.getElementById("fs").value;
   }
@@ -145,13 +146,15 @@ $(document).on("click", "#launch", function(){
   if(document.getElementById("maxlag").value) {
     maxlag = document.getElementById("maxlag").value;
   }
+  // Generate a random folder id for S3/EC2 upload/download
   id = Math.round(100000*Math.random());
+  // Put the xcor params into the params variable
   params.push([fs, freqmin, freqmax, ccstep, cclen, maxlag]);
   params.unshift(["fs", "freqmin", "freqmax", "cc_step", "cc_len", "maxlag"]);
   paramsText = params.map(e => e.join(",")).join("\n");
   paramsCSV = encodeURI("data:text/csv;charset=utf-8," + paramsText);
   AWS.config.credentials.refresh(function(){
-    s3.upload({
+    s3.upload({ // Upload the xcor parameter file (params.csv) to S3
         Key: "incoming/" + id + "/params.csv",
         Body: paramsText,
         },
@@ -163,7 +166,7 @@ $(document).on("click", "#launch", function(){
           var uploaded = parseInt((progress.loaded * 100) / progress.total);
           $("progress").attr('value', uploaded);
         });
-    s3.upload({
+    s3.upload({ // Upload the selected station file (stations.csv) to S3
         Key: "incoming/" + id + "/stations.csv",
         Body: channelsText,
         },
@@ -186,10 +189,10 @@ $(document).on("click", "#download_params", function(){
   link.click();
 });
 
-
 $(document).on("click", "#update", function(){
   var url = "http://service.iris.edu/fdsnws/station/1/query?level=channel&minlat=" + minLat + "&maxlat=" + maxLat + "&minlon=" + minLong + "&maxlon=" + maxLong;
 
+  // Build the IRIS url query
   if(document.getElementById("network").value) { // Networks
     var network = document.getElementById("network").value;
     url = url + "&network=" + network;
