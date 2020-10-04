@@ -1,3 +1,4 @@
+// default parameters
 var queriedChannels = [];
 var savedChannels = [];
 var params = [];
@@ -9,6 +10,27 @@ var ccstep = 450;
 var cclen = 1800;
 var maxlag = 60.0;
 
+// enable information box and phase-weighted stacking input toggling
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();
+
+  $("select").change(function(){
+        $(this).find("option:selected").each(function(){
+            var val = $(this).attr("value");
+            console.log(val)
+            if(val == "phase-weighted"){
+                $("#phaseContainer").show();
+            } else{
+                $("#phaseContainer").hide();
+            }
+        });
+    }).change();
+});
+
+
+/**
+ * Clears all objects on map and saved channels (refresh previous queries)
+ */
 function clearAll() {
    $("#displayedStations tbody tr").remove();
    markersLayer.clearLayers();
@@ -16,6 +38,10 @@ function clearAll() {
    queriedChannels = [];
 }
 
+/**
+ * Reads XML files from IRIS to display and save queried stations
+ * @param xml xml file of seismic station information from IRIS
+ */
 function parseXml(xml){
   // First, clear all previous query markers from map
   clearAll();
@@ -81,7 +107,10 @@ function parseXml(xml){
   map.fitBounds(markersLayer.getBounds());
 }
 
-$(document).on("click", "#selectAll", function(){
+/**
+ * Select all queried seismic stations
+ */
+function selectAll() {
   var inputs = document.getElementsByTagName("input");
    for(var i = 0; i < inputs.length; i++) {
        if(inputs[i].type == "checkbox") {
@@ -90,9 +119,12 @@ $(document).on("click", "#selectAll", function(){
            }
        }
    }
-});
+}
 
-$(document).on("click", "#deselectAll", function(){
+/**
+ * Deselect all queried seismic stations
+ */
+function deselectAll() {
   var inputs = document.getElementsByTagName("input");
    for(var i = 0; i < inputs.length; i++) {
        if(inputs[i].type == "checkbox") {
@@ -101,32 +133,43 @@ $(document).on("click", "#deselectAll", function(){
            }
        }
    }
-});
+}
 
-$(document).on("click", "#save", function(){
+/**
+ * Save selected seismic stations
+ */
+function save() {
   var selectedIndices = $.map($("input:checked").closest("tr"), function(tr) { return $(tr).index(); });
   savedChannels = selectedIndices.map(i => queriedChannels[i]);
   $("#numSaved").html(savedChannels.length);
   savedChannels.unshift(["Network", "Station", "Location", "Channel", "StartDate", "EndDate"]);
   channelsText = savedChannels.map(e => e.join(",")).join("\n");
   savedCSV = encodeURI("data:text/csv;charset=utf-8," + channelsText);
-});
+}
 
-$(document).on("click", "#clear", function(){
+/**
+ * Clear saved seismic stations
+ */
+function clear() {
   savedChannels = [];
   $("#numSaved").html(0);
-});
+}
 
-$(document).on("click", "#download_stations", function(){
+/**
+ * Download a csv file of saved seismic stations
+ */
+function downloadStations() {
   var link = document.createElement("a");
   link.setAttribute("href", savedCSV);
   link.setAttribute("download", "stations.csv");
   document.body.appendChild(link);
   link.click();
-});
+}
 
-// XCor tab: If the "Save and Launch" button is clicked
-$(document).on("click", "#launch", function(){
+/**
+ * Upload saved seismic stations and cross-correlation parameters, and launch the cross-correlation process on AWS
+ */
+function launch() {
   params = []; // generate an xcor parameter variable
   if(document.getElementById("fs").value) {
     fs = document.getElementById("fs").value;
@@ -179,17 +222,23 @@ $(document).on("click", "#launch", function(){
           $("progress").attr('value', uploaded);
         });
   });
-});
+}
 
-$(document).on("click", "#download_params", function(){
+/**
+ * Download selected cross-correlation parameters
+ */
+function downloadParams() {
   var link = document.createElement("a");
   link.setAttribute("href", paramsCSV);
   link.setAttribute("download", "xcor_params.csv");
   document.body.appendChild(link);
   link.click();
-});
+};
 
-$(document).on("click", "#update", function(){
+/**
+ * Query the IRIS database based on user input under Station Options
+ */
+function queryIRIS() {
   var url = "http://service.iris.edu/fdsnws/station/1/query?level=channel&minlat=" + minLat + "&maxlat=" + maxLat + "&minlon=" + minLong + "&maxlon=" + maxLong;
 
   // Build the IRIS url query
@@ -224,9 +273,37 @@ $(document).on("click", "#update", function(){
     dataType: "xml",
     success: parseXml
   });
+}
+
+$(document).on("click", "#download_params", function(){
+  downloadParams();
 });
 
-// enable information box
-$(document).ready(function(){
-  $('[data-toggle="tooltip"]').tooltip();
+$(document).on("click", "#update", function(){
+  queryIRIS();
+});
+
+$(document).on("click", "#selectAll", function(){
+  selectAll();
+});
+
+$(document).on("click", "#deselectAll", function(){
+  deselectAll();
+});
+
+$(document).on("click", "#save", function(){
+  save();
+});
+
+$(document).on("click", "#clear", function(){
+  clear();
+});
+
+$(document).on("click", "#download_stations", function(){
+  downloadStations();
+});
+
+// XCor tab: If the "Save and Launch" button is clicked
+$(document).on("click", "#launch", function(){
+  launch();
 });

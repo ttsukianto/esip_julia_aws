@@ -1,7 +1,6 @@
+//default map parameters
 var map = L.map('map').setView([39.8283, -98.5795], 7);
-L.esri.basemapLayer('Topographic').addTo(map);
 var drawnItems = new L.FeatureGroup();
-map.addLayer(drawnItems);
 var drawControl = new L.Control.Draw({
   draw: {
     polygon: false,
@@ -11,17 +10,25 @@ var drawControl = new L.Control.Draw({
   },
   edit: false
 });
-map.addControl(drawControl);
 var markersLayer = new L.FeatureGroup();
-markersLayer.addTo(map);
-
 var maxLat = 90;
 var minLat = -90;
 var maxLong = 180;
 var minLong = -180;
-
 var rectangleLayer = new L.LayerGroup();
-rectangleLayer.addTo(map);
+
+/**
+ * Initialize basic Leaflet map to plot seismic station locations from IRIS query
+ */
+function initializeMap() {
+    L.esri.basemapLayer('Topographic').addTo(map);
+    map.addLayer(drawnItems);
+    map.addControl(drawControl);
+    markersLayer.addTo(map);
+    rectangleLayer.addTo(map);
+}
+
+initializeMap();
 
 map.on('draw:created', function (e) {
 
