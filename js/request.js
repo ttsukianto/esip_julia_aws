@@ -1,14 +1,22 @@
-// default parameters
+// initialize storage
 var queriedChannels = [];
 var savedChannels = [];
 var params = [];
+var stackingParams = [];
 var savedCSV = "";
+var paramsCSV = "";
+var stackingCSV = "";
+
+// default cross-correlation parameters
 var fs = 10.0;
 var freqmin = 0.1;
 var freqmax = 0.2;
 var ccstep = 450;
 var cclen = 1800;
 var maxlag = 60.0;
+
+// default stacking parameters
+var phaseSmoothing = 2;
 
 // enable information box and phase-weighted stacking input toggling
 $(document).ready(function(){
@@ -17,7 +25,6 @@ $(document).ready(function(){
   $("select").change(function(){
         $(this).find("option:selected").each(function(){
             var val = $(this).attr("value");
-            console.log(val)
             if(val == "phase-weighted"){
                 $("#phaseContainer").show();
             } else{
@@ -236,6 +243,36 @@ function downloadParams() {
 };
 
 /**
+ * Download selected stacking parameters
+ */
+function downloadStackingParams() {
+  params = [];
+  if(document.getElementById("stack").value) {
+    stack = document.getElementById("stack").value;
+    if(stack == "phase-weighted") {
+      if(document.getElementById("phase").value) {
+        phaseSmoothing = document.getElementById("phase").value;
+      }
+    }
+    else {
+      phaseSmoothing = "";
+    }
+  }
+  if(document.getElementById("stackAll").value) {
+    stackAll = $('#stackAll').is(":checked");
+  }
+  params.push([stack, phaseSmoothing, stackAll]);
+  params.unshift(["type", "phase_smooth", "stack_all"]);
+  paramsText = params.map(e => e.join(",")).join("\n");
+  stackingCSV = encodeURI("data:text/csv;charset=utf-8," + paramsText);
+  var link = document.createElement("a");
+  link.setAttribute("href", stackingCSV);
+  link.setAttribute("download", "stacking_params.csv");
+  document.body.appendChild(link);
+  link.click();
+};
+
+/**
  * Query the IRIS database based on user input under Station Options
  */
 function queryIRIS() {
@@ -277,6 +314,10 @@ function queryIRIS() {
 
 $(document).on("click", "#download_params", function(){
   downloadParams();
+});
+
+$(document).on("click", "#download_stacking", function(){
+  downloadStackingParams();
 });
 
 $(document).on("click", "#update", function(){
