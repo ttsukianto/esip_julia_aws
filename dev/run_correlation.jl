@@ -11,15 +11,15 @@ using Distributed
 # Need to first process the station CSV file
 print("reading csv files...")
 # Set the column names for the station data
-col_names = ["network","station","location","channel","start_time","end_time"]
-param_names = ["fs", "cc_len", "freqmin", "cc_step", "freqmax", "maxlag"]
+# col_names = ["network","station","location","channel","start_time","end_time"]
+# param_names = ["fs", "cc_len", "freqmin", "cc_step", "freqmax", "maxlag"]
 
 # Create dataframe with station information
-df_st = DataFrame( CSV.File(ARGS[2], header=col_names, missingstring="") )
-df_params = DataFrame( CSV.File(ARGS[3], header=param_names, missingstring="") )
+df_st = DataFrame( CSV.File("../SeisNoiseAWS.jl/example/20200615_102819/41808/stations.csv", header=1, missingstring="") )
+df_params = DataFrame( CSV.File("../SeisNoiseAWS.jl/example/20200615_102819/41808/params.csv", header=1, missingstring="") )
 # Oldest and youngest dates for the date dataframe
-start_date = findmin( df_st.start_time )
-stop_date  = findmax( df_st.end_time )
+start_date = findmin( df_st.StartDate )
+stop_date  = findmax( df_st.EndDate )
 date_range = collect( Date(start_date[1]) : Dates.Day(1) : Date(stop_date[1]) )
 num_days   = length(date_range) # number of days of data
 
@@ -27,10 +27,10 @@ num_days   = length(date_range) # number of days of data
 num_data    = nrow(df_st) # number of data in the IRIS query (channels are separate)
 station_tag = Array{String,1}(undef,num_data)
 for ii in 1:num_data
-  if ismissing(df_st.location[ii])
-        station_tag[ii] = string(df_st.network[ii], ".", df_st.station[ii], ".", ".", df_st.channel[ii]) # create the station ID
+  if ismissing(df_st.Location[ii])
+        station_tag[ii] = string(df_st.Network[ii], ".", df_st.Station[ii], ".", ".", df_st.Channel[ii]) # create the station ID
     else
-        station_tag[ii] = string(df_st.network[ii], ".", df_st.station[ii], ".", df_st.location[ii], ".", df_st.channel[ii]) # create the station ID
+        station_tag[ii] = string(df_st.Network[ii], ".", df_st.Station[ii], ".", df_st.Location[ii], ".", df_st.Channel[ii]) # create the station ID
     end
     print("Creating tag: ", station_tag[ii],"\n")
 end
@@ -43,8 +43,8 @@ for d in date_range
     df_date[!, Symbol(d)] .= false
 end
 
-st_ends   = Array{Date,1}(df_st.end_time) # start times of each station_tag
-st_starts = Array{Date,1}(df_st.start_time) # start times of each station_tag
+st_ends   = Array{Date,1}(df_st.EndDate) # start times of each station_tag
+st_starts = Array{Date,1}(df_st.StartDate) # start times of each station_tag
 
 # Now populate each row with TRUE/FALSE
 for ii in 1:num_data
@@ -59,7 +59,7 @@ end
 # I don't think we parallelize here. To parellize I suggest we follow Tim's
 # suggestion and parallelize over the double loop over stations in this day.
 
-test_col = 1000 # this column has a few stations with data on this day
+test_col = 100 # this column has a few stations with data on this day
 print("Processing: ", date_range[test_col]," to ", date_range[test_col+1],"\n");
 
 S = SeisData() # create empty seisdata object
@@ -71,7 +71,7 @@ get_data!(S, "FDSN", station_tag[df_date[:,test_col]], src="IRIS", s=the_date, t
 
 ## Now let's do an example of the correlation process for those data
 
-fs      = df_params.fs[1] # [Hz] resample frequency
+fs      = Float64(df_params.fs[1]) # [Hz] resample frequency
 cc_len  = df_params.cc_len[1] # [s]
 freqmin = df_params.freqmin[1] # [Hz] low pass
 cc_step = df_params.cc_step[1] # [s]
@@ -79,7 +79,7 @@ freqmax = df_params.freqmax[1] # [Hz] high pass
 maxlag  = df_params.maxlag[1] # [s]
 
 # Save correlation files to this directory
-COR_DIR = joinpath(ARGS[1], "CORR") # local path
+COR_DIR = joinpath("../SeisNoiseAWS.jl/example/20200615_102819/41808/", "CORR") # local path
 if !isdir(COR_DIR) # make the local directoy if necessary
     mkpath(COR_DIR)
 end

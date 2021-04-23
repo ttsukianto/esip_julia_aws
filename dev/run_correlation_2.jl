@@ -92,7 +92,7 @@ addprocs()
 
 @everywhere using SeisIO, SeisNoise
 # @everywhere function xcor(xcor_pairs, fs, cc_len, freqmin, cc_step, freqmax, maxlag, output_dir)
-@everywhere function xcor(xcor_pairs, df_params, output_dir)
+function xcor(xcor_pairs, df_params, output_dir)
 
     # The xcor parameters
     # fs      = df_params.fs[1] # [Hz] resample frequency
