@@ -178,6 +178,7 @@ function downloadStations() {
  */
 function launch() {
   params = []; // generate an xcor parameter variable
+  var userEmail;
   if(document.getElementById("fs").value) {
     fs = document.getElementById("fs").value;
   }
@@ -195,6 +196,9 @@ function launch() {
   }
   if(document.getElementById("maxlag").value) {
     maxlag = document.getElementById("maxlag").value;
+  }
+  if(document.getElementById("user-email").value) {
+    userEmail = document.getElementById("user-email").value;
   }
   // Generate a random folder id for S3/EC2 upload/download
   id = Math.round(100000*Math.random());
@@ -219,6 +223,18 @@ function launch() {
     s3.upload({ // Upload the selected station file (stations.csv) to S3
         Key: "incoming/" + id + "/stations.csv",
         Body: channelsText,
+        },
+        function(err, data) {
+          if(err) {
+            console.log("Error", err.message);
+          }
+        }).on('httpUploadProgress', function (progress) {
+          var uploaded = parseInt((progress.loaded * 100) / progress.total);
+          $("progress").attr('value', uploaded);
+        });
+    s3.upload({ // Upload the user's email address
+        Key: "incoming/" + id + "/email.txt",
+        Body: userEmail,
         },
         function(err, data) {
           if(err) {
