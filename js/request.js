@@ -6,6 +6,7 @@ var stackingParams = [];
 var savedCSV = "";
 var paramsCSV = "";
 var stackingCSV = "";
+var id;
 
 // default cross-correlation parameters
 var fs = 10.0;
@@ -178,7 +179,6 @@ function downloadStations() {
  */
 function launch() {
   params = []; // generate an xcor parameter variable
-  var userEmail;
   if(document.getElementById("fs").value) {
     fs = document.getElementById("fs").value;
   }
@@ -196,9 +196,6 @@ function launch() {
   }
   if(document.getElementById("maxlag").value) {
     maxlag = document.getElementById("maxlag").value;
-  }
-  if(document.getElementById("user-email").value) {
-    userEmail = document.getElementById("user-email").value;
   }
   // Generate a random folder id for S3/EC2 upload/download
   id = Math.round(100000*Math.random());
@@ -232,19 +229,36 @@ function launch() {
           var uploaded = parseInt((progress.loaded * 100) / progress.total);
           $("progress").attr('value', uploaded);
         });
-    s3.upload({ // Upload the user's email address
-        Key: "incoming/" + id + "/email.txt",
-        Body: userEmail,
+  });
+}
+
+/**
+ * Download cross-correlation files after processing on EC2
+ */
+function downloadXcor() {
+  AWS.config.credentials.refresh(function(){
+    s3.getObject({
+        Key: "processed/" + id + ".zip",
         },
         function(err, data) {
-          if(err) {
-            console.log("Error", err.message);
+          if(err != null) {
+            alert("Your cross-correlation job is not yet ready. Thank you for your patience.");
           }
-        }).on('httpUploadProgress', function (progress) {
-          var uploaded = parseInt((progress.loaded * 100) / progress.total);
-          $("progress").attr('value', uploaded);
+          else {
+            alert("Loaded " + data.ContentLength + " bytes");
+            console.log(data);
+            //var link = document.createElement("a");
+            //link.setAttribute("href", data.Body);
+            //link.setAttribute("download", id + ".zip");
+            //document.body.appendChild(link);
+            //link.click();
+            console.log(data.ContentLength);
+            var blob = new Blob([data.Body], {type: "application/zip"});
+            console.log(blob.size);
+            saveAs(blob, id + ".zip");
+          }
         });
-  });
+    });
 }
 
 /**
@@ -358,6 +372,10 @@ $(document).on("click", "#clear", function(){
 
 $(document).on("click", "#download_stations", function(){
   downloadStations();
+});
+
+$(document).on("click", "#download_xcor", function() {
+  downloadXcor();
 });
 
 // XCor tab: If the "Save and Launch" button is clicked
