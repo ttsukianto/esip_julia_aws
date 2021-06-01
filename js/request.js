@@ -15,7 +15,8 @@ var freqmax = 0.2;
 var ccstep = 450;
 var cclen = 1800;
 var maxlag = 60.0;
-
+var start;
+var end;
 // default stacking parameters
 var phaseSmoothing = 2;
 
@@ -93,9 +94,21 @@ function parseXml(xml){
         var channel = $(this).attr("code");
         currentChannel.push(channel);
         var channelStartDate = $(this).attr("startDate");
-        currentChannel.push(channelStartDate);
+        if(new Date(channelStartDate) >= new Date(start)) {
+          currentChannel.push(channelStartDate);
+        }
+        else {
+          currentChannel.push(start);
+        }
         var channelEndDate = $(this).attr("endDate");
-        currentChannel.push(channelEndDate);
+        if(new Date(channelEndDate) <= new Date(end)) {
+          //console.log(channelEndDate);
+          currentChannel.push(channelEndDate);
+        }
+        else {
+          //console.log(end);
+          currentChannel.push(end);
+        }
         var currentRow = document.querySelector("#displayedStations tbody").insertRow(-1);
         var checkbox = document.createElement("INPUT");
         checkbox.setAttribute("type", "checkbox");
@@ -152,6 +165,7 @@ function save() {
   $("#numSaved").html(savedChannels.length);
   savedChannels.unshift(["Network", "Station", "Location", "Channel", "StartDate", "EndDate"]);
   channelsText = savedChannels.map(e => e.join(",")).join("\n");
+  //console.log(queriedChannels);
   savedCSV = encodeURI("data:text/csv;charset=utf-8," + channelsText);
 }
 
@@ -326,11 +340,11 @@ function queryIRIS() {
     url = url + "&channel=" + channel;
   }
   if(document.getElementById("start-date").value) { // Start Date
-    var start = document.getElementById("start-date").value;
+    start = document.getElementById("start-date").value;
     url = url + "&starttime=" + start;
   }
   if(document.getElementById("end-date").value) { // End Date
-    var end = document.getElementById("end-date").value;
+    end = document.getElementById("end-date").value;
     url = url + "&endtime=" + end;
   }
 
