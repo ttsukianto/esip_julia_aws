@@ -56,6 +56,7 @@ function parseXml(xml){
   clearAll();
   $(xml).find("Network").each(function(){
     var network = $(this).attr("code");
+    var prevStation = "";
     $(this).find("Station").each(function(){
       // Get attributes from XML file
       var station = $(this).attr("code");
@@ -64,6 +65,10 @@ function parseXml(xml){
       var latitude = $(this).find("> Latitude").text();
       var longitude = $(this).find("> Longitude").text();
       var elevation = $(this).find("> Elevation").text();
+
+      if(prevStation === "") {
+        prevStation = station;
+      }
       // Create map popup
       var popupText = "<dl><dt>Network</dt>"
              + "<dd>" + network + "</dd>"
@@ -85,46 +90,66 @@ function parseXml(xml){
       stationMarker.bindPopup(popupText);
       markersLayer.addLayer(stationMarker);
       // Add current station channel to displayed table
+      var prevChannel = "";
+      var currentChannel = [];
+      var location = "";
+      var channel = "";
+      var channelStartDate = "";
+      var channelEndDate = "";
       $(this).find("Channel").each(function() {
-        var currentChannel = [];
-        currentChannel.push(network);
-        currentChannel.push(station);
-        var location = $(this).attr("locationCode");
-        currentChannel.push(location);
-        var channel = $(this).attr("code");
-        currentChannel.push(channel);
-        var channelStartDate = $(this).attr("startDate");
-        if(new Date(channelStartDate) >= new Date(start)) {
-          currentChannel.push(channelStartDate);
+        channel = $(this).attr("code");
+        // if new channel
+        if(prevChannel !== channel) {
+          // if not first channel, update end date
+          if(prevChannel !== "") {
+            queriedChannels[queriedChannels.length-1][5] = channelEndDate;
+          }
+          currentChannel = [];
+          currentChannel.push(network);
+          currentChannel.push(station);
+          location = $(this).attr("locationCode");
+          currentChannel.push(location);
+          currentChannel.push(channel);
+          channelStartDate = $(this).attr("startDate");
+          if(new Date(channelStartDate) >= new Date(start)) {
+            currentChannel.push(channelStartDate);
+          }
+          else {
+            channelStartDate = start;
+            currentChannel.push(start);
+          }
+          if(new Date(channelEndDate) <= new Date(end)) {
+            currentChannel.push(channelEndDate);
+          }
+          else {
+            channelEndDate = end;
+            currentChannel.push(end);
+          }
+          var currentRow = document.querySelector("#displayedStations tbody").insertRow(-1);
+          var checkbox = document.createElement("INPUT");
+          checkbox.setAttribute("type", "checkbox");
+          currentRow.insertCell(0).append(checkbox);
+          currentRow.insertCell(1).innerHTML = network;
+          currentRow.insertCell(2).innerHTML = station;
+          currentRow.insertCell(3).innerHTML = location;
+          currentRow.insertCell(4).innerHTML = channel;
+          currentRow.insertCell(5).innerHTML = channelStartDate;
+          currentRow.insertCell(6).innerHTML = channelEndDate;
+          document.querySelector("#displayedStations tbody").appendChild(currentRow);
+          queriedChannels.push(currentChannel);
         }
-        else {
-          currentChannel.push(start);
+
+        channelEndDate = $(this).attr("endDate");
+        console.log(station + " " + channel + " " + $(this).attr("startDate") + "-" + channelEndDate);
+        if(new Date(channelEndDate) > new Date(end)) {
+          channelEndDate = end;
         }
-        var channelEndDate = $(this).attr("endDate");
-        if(new Date(channelEndDate) <= new Date(end)) {
-          //console.log(channelEndDate);
-          currentChannel.push(channelEndDate);
-        }
-        else {
-          //console.log(end);
-          currentChannel.push(end);
-        }
-        var currentRow = document.querySelector("#displayedStations tbody").insertRow(-1);
-        var checkbox = document.createElement("INPUT");
-        checkbox.setAttribute("type", "checkbox");
-        currentRow.insertCell(0).append(checkbox);
-        currentRow.insertCell(1).innerHTML = network;
-        currentRow.insertCell(2).innerHTML = station;
-        currentRow.insertCell(3).innerHTML = location;
-        currentRow.insertCell(4).innerHTML = channel;
-        currentRow.insertCell(5).innerHTML = channelStartDate;
-        currentRow.insertCell(6).innerHTML = channelEndDate;
-        document.querySelector("#displayedStations tbody").appendChild(currentRow);
-        queriedChannels.push(currentChannel);
+        prevChannel = channel;
       }); // End per-channel loop
     }); // End per-station loop
   }); // End per-network loop
   $("#numQueried").html(queriedChannels.length);
+  //console.log(queriedChannels);
   map.fitBounds(markersLayer.getBounds());
 }
 
