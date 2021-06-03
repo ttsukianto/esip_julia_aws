@@ -111,14 +111,15 @@ function parseXml(xml){
           currentChannel.push(location);
           currentChannel.push(channel);
           channelStartDate = $(this).attr("startDate");
-          if(new Date(channelStartDate) >= new Date(start)) {
+          if(new Date(channelStartDate) > new Date(start)) {
             currentChannel.push(channelStartDate);
           }
           else {
             channelStartDate = start;
             currentChannel.push(start);
           }
-          if(new Date(channelEndDate) <= new Date(end)) {
+          channelEndDate = $(this).attr("endDate");
+          if(new Date(channelEndDate) < new Date(end)) {
             currentChannel.push(channelEndDate);
           }
           else {
@@ -140,10 +141,10 @@ function parseXml(xml){
         }
 
         channelEndDate = $(this).attr("endDate");
-        console.log(station + " " + channel + " " + $(this).attr("startDate") + "-" + channelEndDate);
-        if(new Date(channelEndDate) > new Date(end)) {
+        if(channelEndDate > end) {
           channelEndDate = end;
         }
+        console.log(station + " " + channel + " " + $(this).attr("startDate") + "-" + channelEndDate);
         prevChannel = channel;
       }); // End per-channel loop
     }); // End per-station loop
