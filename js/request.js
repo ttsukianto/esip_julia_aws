@@ -351,18 +351,22 @@ function queryIRIS() {
   // Build the IRIS url query
   if(document.getElementById("network").value) { // Networks
     var network = document.getElementById("network").value;
+    network = network.replace(/\s+/g, "").trim();
     url = url + "&network=" + network;
   }
   if(document.getElementById("station").value) { // Stations
     var station = document.getElementById("station").value;
+    station = station.replace(/\s+/g, "").trim();
     url = url + "&station=" + station;
   }
   if(document.getElementById("location").value) { // Locations
     var location = document.getElementById("location").value;
+    location = location.replace(/\s+/g, "").trim();
     url = url + "&location=" + location;
   }
   if(document.getElementById("channel").value) { // Channels
     var channel = document.getElementById("channel").value;
+    channel = channel.replace(/\s+/g, "").trim();
     url = url + "&channel=" + channel;
   }
   if(document.getElementById("start-date").value) { // Start Date
