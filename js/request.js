@@ -34,6 +34,8 @@ $(document).ready(function(){
             }
         });
     }).change();
+  $("#start-date").datepicker({});
+  $("#end-date").datepicker({});
 });
 
 
