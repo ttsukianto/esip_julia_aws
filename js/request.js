@@ -7,6 +7,8 @@ var savedCSV = "";
 var paramsCSV = "";
 var stackingCSV = "";
 var id;
+var fileList;
+var ready = false;
 
 // default cross-correlation parameters
 var fs = 10.0;
@@ -36,6 +38,8 @@ $(document).ready(function(){
     }).change();
   $("#start-date").datepicker({});
   $("#end-date").datepicker({});
+  $("#refresh").hide();
+  $("#processingMessage").hide();
 });
 
 
@@ -114,30 +118,31 @@ function parseXml(xml){
           currentChannel.push(channel);
           channelStartDate = $(this).attr("startDate");
           if(new Date(channelStartDate) > new Date(start)) {
-            currentChannel.push(channelStartDate);
+            currentChannel.push(channelStartDate + "T00:00:00");
           }
           else {
             channelStartDate = start;
-            currentChannel.push(start);
+            currentChannel.push(start + "T00:00:00");
           }
           channelEndDate = $(this).attr("endDate");
           if(new Date(channelEndDate) < new Date(end)) {
-            currentChannel.push(channelEndDate);
+            currentChannel.push(channelEndDate + "T00:00:00");
           }
           else {
             channelEndDate = end;
-            currentChannel.push(end);
+            currentChannel.push(end + "T00:00:00");
           }
           var currentRow = document.querySelector("#displayedStations tbody").insertRow(-1);
           var checkbox = document.createElement("INPUT");
           checkbox.setAttribute("type", "checkbox");
+          checkbox.setAttribute("class", "queryBox");
           currentRow.insertCell(0).append(checkbox);
           currentRow.insertCell(1).innerHTML = network;
           currentRow.insertCell(2).innerHTML = station;
           currentRow.insertCell(3).innerHTML = location;
           currentRow.insertCell(4).innerHTML = channel;
-          currentRow.insertCell(5).innerHTML = channelStartDate;
-          currentRow.insertCell(6).innerHTML = channelEndDate;
+          currentRow.insertCell(5).innerHTML = channelStartDate + "T00:00:00";
+          currentRow.insertCell(6).innerHTML = channelEndDate + "T00:00:00";
           document.querySelector("#displayedStations tbody").appendChild(currentRow);
           queriedChannels.push(currentChannel);
         }
@@ -157,30 +162,26 @@ function parseXml(xml){
 }
 
 /**
- * Select all queried seismic stations
+ * Select all queried seismic stations/correlation files
  */
-function selectAll() {
-  var inputs = document.getElementsByTagName("input");
+function selectAll(className) {
+  var inputs = document.getElementsByClassName(className);
    for(var i = 0; i < inputs.length; i++) {
-       if(inputs[i].type == "checkbox") {
-           if(!inputs[i].checked) {
-             inputs[i].checked = true;
-           }
-       }
+     if(!inputs[i].checked) {
+       inputs[i].checked = true;
+     }
    }
 }
 
 /**
- * Deselect all queried seismic stations
+ * Deselect all queried seismic stations/correlation files
  */
-function deselectAll() {
-  var inputs = document.getElementsByTagName("input");
+function deselectAll(className) {
+  var inputs = document.getElementsByClassName(className);
    for(var i = 0; i < inputs.length; i++) {
-       if(inputs[i].type == "checkbox") {
-           if(inputs[i].checked) {
-             inputs[i].checked = false;
-           }
-       }
+     if(inputs[i].checked) {
+       inputs[i].checked = false;
+     }
    }
 }
 
@@ -188,7 +189,7 @@ function deselectAll() {
  * Save selected seismic stations
  */
 function save() {
-  var selectedIndices = $.map($("input:checked").closest("tr"), function(tr) { return $(tr).index(); });
+  var selectedIndices = $.map($("input[class=queryBox]:checked").closest("tr"), function(tr) { return $(tr).index(); });
   savedChannels = selectedIndices.map(i => queriedChannels[i]);
   $("#numSaved").html(savedChannels.length);
   savedChannels.unshift(["Network", "Station", "Location", "Channel", "StartDate", "EndDate"]);
@@ -272,37 +273,70 @@ function launch() {
           $("progress").attr('value', uploaded);
         });
   });
+  $("#refresh").show();
+  $("#processingMessage").show();
+  refreshAuto();
 }
+
 
 /**
  * Download cross-correlation files after processing on EC2
  */
 function downloadXcor() {
+  var selectedIndices = $.map($("input[class=fileBox]:checked").closest("tr"), function(tr) { return $(tr).index(); });
+  var savedFiles = selectedIndices.map(i => fileList[i]);
+  for(i = 0; i < savedFiles.length; i++) {
+    AWS.config.credentials.refresh(function(){
+      s3.getObject({
+          Key: "processed/" + fileList[i]
+          },
+          function(err, data) {
+            if(err == null) {
+              console.log(data);
+              var blob = new Blob([data.Body], {type: "binary/octet-stream"});
+              saveAs(blob, fileList[i]);
+            }
+          });
+      });
+  }
+}
+
+function sleep(time) {
+   return new Promise(resolve => setTimeout(resolve, time));
+}
+
+async function refreshAuto() {
+  while(!ready) {
+    refreshFiles();
+    await sleep(30000);
+  }
+}
+
+function refreshFiles() {
   AWS.config.credentials.refresh(function(){
     s3.getObject({
-        Key: "processed/" + id + ".zip",
+        Key: "processed/" + id + "/files.txt"
         },
         function(err, data) {
-          if(err != null) {
-            alert("Your cross-correlation job is not yet ready. Thank you for your patience.");
-          }
-          else {
-            alert("Loaded " + data.ContentLength + " bytes");
-            console.log(data);
-            //var link = document.createElement("a");
-            //link.setAttribute("href", data.Body);
-            //link.setAttribute("download", id + ".zip");
-            //document.body.appendChild(link);
-            //link.click();
-            console.log(data.ContentLength);
-            var blob = new Blob([data.Body], {type: "application/zip"});
-            console.log(blob.size);
-            saveAs(blob, id + ".zip");
+          if(err == null) {
+            if(!ready) {
+              ready = true;
+              fileList = data.Body.toString().split("\n");
+              for(i = 0; i < fileList.length; i++) {
+                var currentRow = document.querySelector("#displayedFiles tbody").insertRow(-1);
+                var checkbox = document.createElement("INPUT");
+                checkbox.setAttribute("type", "checkbox");
+                checkbox.setAttribute("class", "fileBox");
+                currentRow.insertCell(0).append(checkbox);
+                currentRow.insertCell(1).innerHTML = fileList[i];
+                document.querySelector("#displayedFiles tbody").appendChild(currentRow);
+              }
+            }
           }
         });
     });
-}
 
+}
 /**
  * Download selected cross-correlation parameters
  */
@@ -401,12 +435,21 @@ $(document).on("click", "#update", function(){
 });
 
 $(document).on("click", "#selectAll", function(){
-  selectAll();
+  selectAll("queryBox");
 });
 
 $(document).on("click", "#deselectAll", function(){
-  deselectAll();
+  deselectAll("queryBox");
 });
+
+$(document).on("click", "#selectAllFiles", function(){
+  selectAll("fileBox");
+});
+
+$(document).on("click", "#deselectAllFiles", function(){
+  deselectAll("fileBox");
+});
+
 
 $(document).on("click", "#save", function(){
   save();
@@ -422,6 +465,10 @@ $(document).on("click", "#download_stations", function(){
 
 $(document).on("click", "#download_xcor", function() {
   downloadXcor();
+});
+
+$(document).on("click", "#refresh", function() {
+  refreshFiles();
 });
 
 // XCor tab: If the "Save and Launch" button is clicked

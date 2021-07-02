@@ -146,11 +146,31 @@
 <!-- End of map tab -->
 <!-- Start of xcor tab -->
 <div id="xCorContainer" class="tab-pane">
-  <div id="xCorFilters">
-    <h3>XCor Filters</h3>
+  <div id="filesContainer">
     <p>This page is used to set preprocessing and cross correlation parameters.
     You can find more detailed information about the preprocessing parameters at
     <a target="_blank" href="https://github.com/tclements/SeisNoise.jl/blob/master/docs/src/preprocessing.md">SeisNoise.jl.</a></p>
+    <table id="displayedFiles" class="table table-striped">
+      <thead class="sticky-top">
+        <tr>
+          <th id="selected" scope="col">Selected</th>
+          <th scope="col">File</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  <div id="fileOptions">
+    <input class="btn btn-success" type="button" value="Select All" id="selectAllFiles">
+    <input class="btn btn-danger" type="button" value="Deselect All" id="deselectAllFiles">
+    <input class="btn btn-primary" type="button" value="Refresh" id="refresh">
+    <br>
+    <br>
+    <p id="processingMessage">Processing initiated. Table will be refreshed in 30 seconds.</p>
+  </div>
+  <div id="xCorFilters">
+    <h3>XCor Filters</h3>
     <form>
     <div class="form-row">
       <div class="form-group">
@@ -214,7 +234,7 @@
         In that case you would want to save 20 or 30 seconds perhaps from each side of the correlation. Setting the Maximum Correlation Lag Time to 20 seconds,
         would then result in a 40 second long cross correlation being saved, 20 seconds of the acausal signal and 20 seconds of the causal signal,
         all written as a single seismic trace. NOTE: Saving smaller windows will speed post processing (e.g. stacking correlation windows)."
-        data-placement="right">Maximum Correlation Lag Time (sec) &#9432;</label>
+        data-placement="right">Max Correlation Lag Time (sec) &#9432;</label>
         <input type="number" class="form-control" id="maxlag" placeholder="60.0">
       </div>
       </div>
@@ -222,7 +242,7 @@
     <input class="btn btn-primary" type="button" value="Save and Launch" id="launch">
     <br>
     <br>
-    <input class="btn btn-secondary" type="button" value="Download XCor Files" id="download_xcor">
+    <input class="btn btn-secondary" type="button" value="Download Selected Files" id="download_xcor">
   </div>
 </div>
 <!-- End of xcor tab -->
