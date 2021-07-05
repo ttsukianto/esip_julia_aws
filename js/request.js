@@ -9,6 +9,7 @@ var stackingCSV = "";
 var id;
 var fileList;
 var ready = false;
+var numFiles = 0;
 
 // default cross-correlation parameters
 var fs = 10.0;
@@ -288,7 +289,7 @@ function downloadXcor() {
   for(i = 0; i < savedFiles.length; i++) {
     AWS.config.credentials.refresh(function(){
       s3.getObject({
-          Key: "processed/" + fileList[i]
+          Key: fileList[i]
           },
           function(err, data) {
             if(err == null) {
@@ -308,7 +309,7 @@ function sleep(time) {
 async function refreshAuto() {
   while(!ready) {
     refreshFiles();
-    await sleep(30000);
+    await sleep(10000);
   }
 }
 
@@ -320,18 +321,28 @@ function refreshFiles() {
         function(err, data) {
           if(err == null) {
             if(!ready) {
-              ready = true;
               fileList = data.Body.toString().split("\n");
-              for(i = 0; i < fileList.length; i++) {
-                var currentRow = document.querySelector("#displayedFiles tbody").insertRow(-1);
-                var checkbox = document.createElement("INPUT");
-                checkbox.setAttribute("type", "checkbox");
-                checkbox.setAttribute("class", "fileBox");
-                currentRow.insertCell(0).append(checkbox);
-                currentRow.insertCell(1).innerHTML = fileList[i];
-                document.querySelector("#displayedFiles tbody").appendChild(currentRow);
+              for(i = numFiles; i < fileList.length; i++) {
+                if(fileList[numFiles] === "done") {
+                  console.log("Processing complete");
+                  ready = true;
+                  break;
+                }
+                if(fileList[numFiles].length > 0) {
+                  var currentRow = document.querySelector("#displayedFiles tbody").insertRow(-1);
+                  var checkbox = document.createElement("INPUT");
+                  checkbox.setAttribute("type", "checkbox");
+                  checkbox.setAttribute("class", "fileBox");
+                  currentRow.insertCell(0).append(checkbox);
+                  currentRow.insertCell(1).innerHTML = fileList[numFiles];
+                  document.querySelector("#displayedFiles tbody").appendChild(currentRow);
+                  numFiles++;
+                }
               }
             }
+          }
+          else {
+            console.log("Processed files are not ready yet");
           }
         });
     });
