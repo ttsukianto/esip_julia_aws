@@ -118,7 +118,10 @@ function parseXml(xml){
           currentChannel.push(location);
           currentChannel.push(channel);
           channelStartDate = $(this).attr("startDate");
-          if(new Date(channelStartDate) > new Date(start)) {
+          if(start == null) {
+            currentChannel.push(channelStartDate);
+          }
+          else if(new Date(channelStartDate) > new Date(start)) {
             currentChannel.push(channelStartDate + "T00:00:00");
           }
           else {
@@ -126,7 +129,10 @@ function parseXml(xml){
             currentChannel.push(start + "T00:00:00");
           }
           channelEndDate = $(this).attr("endDate");
-          if(new Date(channelEndDate) < new Date(end)) {
+          if(end == null) {
+            currentChannel.push(channelEndDate);
+          }
+          else if(new Date(channelEndDate) < new Date(end)) {
             currentChannel.push(channelEndDate + "T00:00:00");
           }
           else {
@@ -142,8 +148,18 @@ function parseXml(xml){
           currentRow.insertCell(2).innerHTML = station;
           currentRow.insertCell(3).innerHTML = location;
           currentRow.insertCell(4).innerHTML = channel;
-          currentRow.insertCell(5).innerHTML = channelStartDate + "T00:00:00";
-          currentRow.insertCell(6).innerHTML = channelEndDate + "T00:00:00";
+          if(start == null) {
+            currentRow.insertCell(5).innerHTML = channelStartDate;
+          }
+          else {
+            currentRow.insertCell(5).innerHTML = channelStartDate + "T00:00:00";
+          }
+          if(end == null) {
+            currentRow.insertCell(6).innerHTML = channelEndDate;
+          }
+          else {
+            currentRow.insertCell(6).innerHTML = channelEndDate + "T00:00:00";
+          }
           document.querySelector("#displayedStations tbody").appendChild(currentRow);
           queriedChannels.push(currentChannel);
         }
