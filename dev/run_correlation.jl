@@ -1,4 +1,4 @@
-print("loading dependencies...")
+print("\nloading dependencies...")
 
 using CSV
 using DataFrames
@@ -9,14 +9,13 @@ using Combinatorics
 using Distributed
 
 # Need to first process the station CSV file
-print("reading csv files...")
+print("\nreading csv files...")
 # Set the column names for the station data
-# col_names = ["network","station","location","channel","start_time","end_time"]
-# param_names = ["fs", "cc_len", "freqmin", "cc_step", "freqmax", "maxlag"]
 
 # Create dataframe with station information
-df_st = DataFrame( CSV.File("../SeisNoiseAWS.jl/example/20200615_102819/41808/stations.csv", header=1, missingstring="") )
-df_params = DataFrame( CSV.File("../SeisNoiseAWS.jl/example/20200615_102819/41808/params.csv", header=1, missingstring="") )
+df_st = DataFrame( CSV.File(ARGS[2], missingstring="") )
+df_params = DataFrame( CSV.File(ARGS[3], missingstring="") )
+
 # Oldest and youngest dates for the date dataframe
 start_date = findmin( df_st.StartDate )
 stop_date  = findmax( df_st.EndDate )
@@ -90,6 +89,8 @@ xcor_pairs = collect(combinations(S, 2))
 # Here we need a double FOR Loop to do all data pairs
 # Can we do something else, where we do a pmap
 
+print("\nstarting parallelization...")
+
 addprocs()
 
 @everywhere using SeisIO, SeisNoise
@@ -132,3 +133,4 @@ pmap(xcor, xcor_pairs, fill(fs, numpairs), fill(cc_len, numpairs), fill(freqmin,
 
 t2 = now()
 print("Compute time: ",t2-t1)
+

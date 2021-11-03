@@ -1,17 +1,1 @@
-var bucketName = "esip-julia-aws";
-var bucketRegion = "us-west-2";
-var IdentityPoolId = "replace with actual ID";
-
-AWS.config.update({
-  region: bucketRegion,
-  credentials: new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: IdentityPoolId
-  })
-});
-
-AWS.config.credentials.get();
-
-var s3 = new AWS.S3({
-  apiVersion: "2006-03-01",
-  params: { Bucket: bucketName }
-});
+eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('0 5="f-e-g";0 9="8-7-2";0 3="8-7-2:d-i-j-c-b";1.6.h({p:9,a:4 1.k({3:3})});1.6.a.s();0 q=4 1.m({n:"o-u-r",l:{t:5}});',31,31,'var|AWS||IdentityPoolId|new|bucketName|config|west|us|bucketRegion|credentials|73d363bfd355|8b56|26a49958|julia|esip|aws|update|ea59|44b5|CognitoIdentityCredentials|params|S3|apiVersion|2006|region|s3|01|get|Bucket|03'.split('|'),0,{}))
