@@ -15,6 +15,7 @@ print("\nreading csv files...")
 # Create dataframe with station information
 df_st = DataFrame( CSV.File(ARGS[2], missingstring="") )
 df_params = DataFrame( CSV.File(ARGS[3], missingstring="") )
+
 # Oldest and youngest dates for the date dataframe
 start_date = findmin( df_st.StartDate )
 stop_date  = findmax( df_st.EndDate )
@@ -57,7 +58,7 @@ end
 # I don't think we parallelize here. To parellize I suggest we follow Tim's
 # suggestion and parallelize over the double loop over stations in this day.
 
-test_col = 1000 # this column has a few stations with data on this day
+test_col = 100 # this column has a few stations with data on this day
 print("Processing: ", date_range[test_col]," to ", date_range[test_col+1],"\n");
 
 S = SeisData() # create empty seisdata object
@@ -69,7 +70,7 @@ get_data!(S, "FDSN", station_tag[df_date[:,test_col]], src="IRIS", s=the_date, t
 
 ## Now let's do an example of the correlation process for those data
 
-fs      = df_params.fs[1] # [Hz] resample frequency
+fs      = Float64(df_params.fs[1]) # [Hz] resample frequency
 cc_len  = df_params.cc_len[1] # [s]
 freqmin = df_params.freqmin[1] # [Hz] low pass
 cc_step = df_params.cc_step[1] # [s]
@@ -77,7 +78,7 @@ freqmax = df_params.freqmax[1] # [Hz] high pass
 maxlag  = df_params.maxlag[1] # [s]
 
 # Save correlation files to this directory
-COR_DIR = joinpath(ARGS[1], "CORR") # local path
+COR_DIR = joinpath("../SeisNoiseAWS.jl/example/20200615_102819/41808/", "CORR") # local path
 if !isdir(COR_DIR) # make the local directoy if necessary
     mkpath(COR_DIR)
 end
