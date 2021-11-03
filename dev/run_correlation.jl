@@ -1,4 +1,4 @@
-print("loading dependencies...")
+print("\nloading dependencies...")
 
 using CSV
 using DataFrames
@@ -9,17 +9,15 @@ using Combinatorics
 using Distributed
 
 # Need to first process the station CSV file
-print("reading csv files...")
+print("\nreading csv files...")
 # Set the column names for the station data
-col_names = ["network","station","location","channel","start_time","end_time"]
-param_names = ["fs", "cc_len", "freqmin", "cc_step", "freqmax", "maxlag"]
 
 # Create dataframe with station information
-df_st = DataFrame( CSV.File(ARGS[2], header=col_names, missingstring="") )
-df_params = DataFrame( CSV.File(ARGS[3], header=param_names, missingstring="") )
+df_st = DataFrame( CSV.File(ARGS[2], missingstring="") )
+df_params = DataFrame( CSV.File(ARGS[3], missingstring="") )
 # Oldest and youngest dates for the date dataframe
-start_date = findmin( df_st.start_time )
-stop_date  = findmax( df_st.end_time )
+start_date = findmin( df_st.StartDate )
+stop_date  = findmax( df_st.EndDate )
 date_range = collect( Date(start_date[1]) : Dates.Day(1) : Date(stop_date[1]) )
 num_days   = length(date_range) # number of days of data
 
@@ -27,10 +25,10 @@ num_days   = length(date_range) # number of days of data
 num_data    = nrow(df_st) # number of data in the IRIS query (channels are separate)
 station_tag = Array{String,1}(undef,num_data)
 for ii in 1:num_data
-  if ismissing(df_st.location[ii])
-        station_tag[ii] = string(df_st.network[ii], ".", df_st.station[ii], ".", ".", df_st.channel[ii]) # create the station ID
+  if ismissing(df_st.Location[ii])
+        station_tag[ii] = string(df_st.Network[ii], ".", df_st.Station[ii], ".", ".", df_st.Channel[ii]) # create the station ID
     else
-        station_tag[ii] = string(df_st.network[ii], ".", df_st.station[ii], ".", df_st.location[ii], ".", df_st.channel[ii]) # create the station ID
+        station_tag[ii] = string(df_st.Network[ii], ".", df_st.Station[ii], ".", df_st.Location[ii], ".", df_st.Channel[ii]) # create the station ID
     end
     print("Creating tag: ", station_tag[ii],"\n")
 end
@@ -43,8 +41,8 @@ for d in date_range
     df_date[!, Symbol(d)] .= false
 end
 
-st_ends   = Array{Date,1}(df_st.end_time) # start times of each station_tag
-st_starts = Array{Date,1}(df_st.start_time) # start times of each station_tag
+st_ends   = Array{Date,1}(df_st.EndDate) # start times of each station_tag
+st_starts = Array{Date,1}(df_st.StartDate) # start times of each station_tag
 
 # Now populate each row with TRUE/FALSE
 for ii in 1:num_data
@@ -90,6 +88,8 @@ xcor_pairs = collect(combinations(S, 2))
 # Here we need a double FOR Loop to do all data pairs
 # Can we do something else, where we do a pmap
 
+print("\nstarting parallelization...")
+
 addprocs()
 
 @everywhere using SeisIO, SeisNoise
@@ -132,3 +132,4 @@ pmap(xcor, xcor_pairs, fill(fs, numpairs), fill(cc_len, numpairs), fill(freqmin,
 
 t2 = now()
 print("Compute time: ",t2-t1)
+
